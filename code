@@ -1,0 +1,34 @@
+import numpy as np
+import cv2
+import winsound
+import time
+
+eye_detect=cv2.CascadeClassifier(cv2.data.haarcascades +'haarcascade_eye.xml')
+eye_detect.load('haarcascade_eye.xml')
+frequency = 2500
+duration = 3500
+
+cap=cv2.VideoCapture(0)
+   
+while (True): #we used loop because it has multiple frames in a video
+    state,pix=cap.read() #read video as frame
+    if not state:
+        print('No frame captured')
+        
+    pix=cv2.resize(pix,(640,480))  
+    eyes=eye_detect.detectMultiScale(pix,scaleFactor=1.1,minSize=(50,50),minNeighbors=10,flags=cv2.CASCADE_SCALE_IMAGE) #convert into grayscale because color is not necessary for haar.
+    if(len(eyes)==0): #scaleFactor above "The classifier scan frame at multiple scale".
+        # seconds = 1
+        # while seconds > 0:
+        #     seconds -= 1
+        #     time.sleep(3)
+        winsound.Beep(frequency, duration)
+    for (x,y,w,h) in eyes:
+        cv2.rectangle(pix,(x,y),(x+w,y+h),(0,255,0),2)
+
+    cv2.imshow('Detection',pix)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
